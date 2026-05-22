@@ -105,12 +105,6 @@ export default function SignInPage() {
             {isLoading ? "Signing in..." : "Sign In"}
           </button>
         </form>
-        <Link
-          href="/signup"
-          className="block mt-4 rounded-full border border-button-bg px-3 py-2 text-center font-semibold text-button-bg transition hover:bg-button-bg hover:text-white"
-        >
-          Create account
-        </Link>
       </div>
     </div>
   );

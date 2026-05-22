@@ -91,7 +91,7 @@ export default function Topbar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-rose-500 focus:text-rose-500">
               <LogOut className="h-4 w-4" />
-              Sign Out
+              Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

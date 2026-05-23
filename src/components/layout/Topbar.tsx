@@ -42,7 +42,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
   };
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-100/70 bg-white/85 px-6 py-4 shadow-sm backdrop-blur">
+    <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-100/70 bg-white/85 px-6 py-2 shadow-sm backdrop-blur">
       <div className="flex min-w-0 items-center gap-3">
         <button
           className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-100 bg-white text-amber-700 shadow-sm lg:hidden"

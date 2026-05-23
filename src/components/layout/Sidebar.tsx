@@ -126,8 +126,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             className="flex items-center gap-2.5 px-5 border-b py-4 "
             style={{ borderColor: "#2d2620" }}
           >
-            <Image src={logo} alt="Mamamind" width={32} height={32} />
-            <span className="text-lg font-semibold text-white tracking-wide">
+            <Image src={logo} alt="Mamamind" width={36} height={36} />
+            <span className="text-xl font-semibold text-white tracking-wide">
               Mamamind
             </span>
             <button

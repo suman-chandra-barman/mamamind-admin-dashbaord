@@ -1,4 +1,3 @@
-import MobileNav from "@/components/layout/MobileNav";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 
@@ -12,7 +11,6 @@ export default function AdminLayout({
       <Sidebar />
       <div className="lg:pl-64">
         <div className="mx-auto flex min-h-screen w-full flex-col gap-6 px-4 pb-6 lg:px-6">
-          <MobileNav />
           <div className="sticky top-0 z-30">
             <Topbar />
           </div>

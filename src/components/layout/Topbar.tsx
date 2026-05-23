@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Bell,
-  ChevronDown,
-  LogOut,
-  Settings,
-  User,
-} from "lucide-react";
+import { Bell, ChevronDown, LogOut, Menu, Settings, User } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,7 +15,11 @@ import { useState } from "react";
 import { useAppDispatch } from "@/redux/hooks";
 import { logout } from "@/redux/features/auth/authSlice";
 
-export default function Topbar() {
+interface TopbarProps {
+  onOpenSidebar: () => void;
+}
+
+export default function Topbar({ onOpenSidebar }: TopbarProps) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -43,11 +41,22 @@ export default function Topbar() {
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-100/70 bg-white/85 px-6 py-4 shadow-sm backdrop-blur">
-      <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-500/70">
-          {current.section} / {current.title}
-        </p>
-        <h2 className="text-xl font-semibold text-zinc-900">{current.title}</h2>
+      <div className="flex min-w-0 items-center gap-3">
+        <button
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-100 bg-white text-amber-700 shadow-sm lg:hidden"
+          onClick={onOpenSidebar}
+          aria-label="Open sidebar"
+        >
+          <Menu className="h-4 w-4" />
+        </button>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-500/70">
+            {current.section} / {current.title}
+          </p>
+          <h2 className="text-xl font-semibold text-zinc-900">
+            {current.title}
+          </h2>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

@@ -13,6 +13,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
+  X,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -61,7 +62,12 @@ const navigation: NavSection[] = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -76,6 +82,7 @@ export default function Sidebar() {
           "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
           active ? "text-amber-400" : "text-gray-400 hover:text-gray-200",
         )}
+        onClick={onClose}
         style={
           active
             ? {
@@ -98,8 +105,19 @@ export default function Sidebar() {
 
   return (
     <>
+      {isOpen ? (
+        <button
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          onClick={onClose}
+          aria-label="Close sidebar overlay"
+        />
+      ) : null}
       <aside
-        className="fixed left-0 top-0 z-40 hidden h-screen w-64 flex-col justify-between lg:flex border-r"
+        className={cn(
+          "fixed left-0 top-0 z-40 flex h-screen w-64 flex-col justify-between border-r transition-transform duration-200",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          "lg:translate-x-0",
+        )}
         style={{ backgroundColor: "#1e1a17", borderColor: "#2d2620" }}
       >
         {/* Logo */}
@@ -112,6 +130,13 @@ export default function Sidebar() {
             <span className="text-lg font-semibold text-white tracking-wide">
               Mamamind
             </span>
+            <button
+              className="ml-auto inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-300 hover:text-white lg:hidden"
+              onClick={onClose}
+              aria-label="Close sidebar"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Navigation Sections */}

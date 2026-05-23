@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import LogoutModal from "../modals/LogoutModal";
 import { useState } from "react";
-import { useAppDispatch } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/features/auth/authSlice";
+import Link from "next/link";
 
 interface TopbarProps {
   onOpenSidebar: () => void;
@@ -24,6 +25,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const user = useAppSelector((state) => state.auth.user);
 
   const pageMap: Record<string, { title: string; section: string }> = {
     "/": { title: "Overview", section: "Dashboard" },
@@ -70,24 +72,34 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
             <button className="flex items-center gap-3 rounded-full border border-amber-100 bg-white px-3 py-2 text-left shadow-sm">
               <Avatar className="h-8 w-8">
                 <AvatarImage
-                  src="https://i.pravatar.cc/100?img=12"
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${user?.profile_image}`}
                   alt="Admin"
                 />
-                <AvatarFallback>AR</AvatarFallback>
+                <AvatarFallback>
+                  {user?.full_name
+                    ?.split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="hidden sm:block">
-                <p className="text-xs font-semibold text-zinc-900">Alex R.</p>
-                <p className="text-[11px] text-zinc-500">Super Admin</p>
+                <p className="text-xs font-semibold text-zinc-900 capitalize">
+                  {user?.full_name}
+                </p>
+                <p className="text-[11px] text-zinc-500 capitalize">
+                  {user?.role}
+                </p>
               </div>
               <ChevronDown className="h-4 w-4 text-zinc-500" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <div className="px-3 py-2">
-              <p className="text-xs font-semibold text-zinc-900">
-                Alex Reynolds
+              <p className="text-xs font-semibold text-zinc-900 capitalize">
+                {user?.full_name}
               </p>
-              <p className="text-xs text-zinc-500">alex@mamamind.com</p>
+              <p className="text-xs text-zinc-500">{user?.email}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
@@ -95,8 +107,10 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem>
+             <Link href="/settings" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Settings
+             </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

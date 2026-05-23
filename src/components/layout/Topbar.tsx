@@ -2,13 +2,12 @@
 
 import {
   Bell,
-  CalendarDays,
   ChevronDown,
   LogOut,
   Settings,
   User,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,9 +16,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import LogoutModal from "../modals/LogoutModal";
+import { useState } from "react";
+import { useAppDispatch } from "@/redux/hooks";
+import { logout } from "@/redux/features/auth/authSlice";
 
 export default function Topbar() {
   const pathname = usePathname();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+
   const pageMap: Record<string, { title: string; section: string }> = {
     "/": { title: "Overview", section: "Dashboard" },
     "/analytics": { title: "Usage & Analytics", section: "Dashboard" },
@@ -44,12 +51,6 @@ export default function Topbar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="flex items-center gap-2 rounded-full border border-amber-100 bg-white px-3 py-2 text-xs font-semibold text-amber-700 shadow-sm">
-          <CalendarDays className="h-4 w-4" />
-          30 days
-          <ChevronDown className="h-4 w-4" />
-        </button>
-
         <button className="relative rounded-full border border-amber-100 bg-white p-2 text-amber-700 shadow-sm">
           <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-amber-500" />
           <Bell className="h-4 w-4" />
@@ -89,13 +90,25 @@ export default function Topbar() {
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-rose-500 focus:text-rose-500">
+            <DropdownMenuItem
+              className="text-rose-500 focus:text-rose-500"
+              onClick={() => setIsLogoutOpen(true)}
+            >
               <LogOut className="h-4 w-4" />
               Log Out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      <LogoutModal
+        open={isLogoutOpen}
+        onOpenChange={setIsLogoutOpen}
+        onConfirm={() => {
+          dispatch(logout());
+          setIsLogoutOpen(false);
+          router.replace("/signin");
+        }}
+      />
     </header>
   );
 }

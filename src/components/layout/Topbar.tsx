@@ -107,10 +107,10 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem>
-             <Link href="/settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Settings
-             </Link>
+              <Link href="/settings" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

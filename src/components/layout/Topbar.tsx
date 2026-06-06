@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import LogoutModal from "../modals/LogoutModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout } from "@/redux/features/auth/authSlice";
 import Link from "next/link";
@@ -25,7 +25,15 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const user = useAppSelector((state) => state.auth.user);
+
+  // Prevent hydration mismatch: user data only exists on the client (Redux store
+  // is empty during SSR), so we must not render user-derived content until
+  // after the first client render.
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const pageMap: Record<string, { title: string; section: string }> = {
     "/": { title: "Overview", section: "Dashboard" },
@@ -40,6 +48,15 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
     title: "Dashboard",
     section: "Dashboard",
   };
+
+  // Only derive initials on the client to avoid server/client mismatch
+  const initials = mounted
+    ? (user?.full_name
+        ?.split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase() ?? "")
+    : "";
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-100/70 bg-white/85 px-6 py-2 shadow-sm backdrop-blur">
@@ -71,24 +88,20 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-3 rounded-full border border-amber-100 bg-white px-3 py-2 text-left shadow-sm">
               <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={`${process.env.NEXT_PUBLIC_BASE_URL}${user?.profile_image}`}
-                  alt="Admin"
-                />
-                <AvatarFallback>
-                  {user?.full_name
-                    ?.split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </AvatarFallback>
+                {mounted && (
+                  <AvatarImage
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL}${user?.profile_image}`}
+                    alt="Admin"
+                  />
+                )}
+                <AvatarFallback>{initials}</AvatarFallback>
               </Avatar>
               <div className="hidden sm:block">
                 <p className="text-xs font-semibold text-zinc-900 capitalize">
-                  {user?.full_name}
+                  {mounted ? user?.full_name : ""}
                 </p>
                 <p className="text-[11px] text-zinc-500 capitalize">
-                  {user?.role}
+                  {mounted ? user?.role : ""}
                 </p>
               </div>
               <ChevronDown className="h-4 w-4 text-zinc-500" />
@@ -123,6 +136,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
       <LogoutModal
         open={isLogoutOpen}
         onOpenChange={setIsLogoutOpen}

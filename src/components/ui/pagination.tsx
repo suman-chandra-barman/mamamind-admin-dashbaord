@@ -8,6 +8,8 @@ interface PaginationProps {
   currentPage?: number;
   totalPages?: number;
   className?: string;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 export default function Pagination({
@@ -15,6 +17,8 @@ export default function Pagination({
   currentPage = 1,
   totalPages = 10,
   className,
+  onPrev,
+  onNext,
 }: PaginationProps) {
   return (
     <div
@@ -30,6 +34,7 @@ export default function Pagination({
           size="sm"
           className="h-8 gap-1"
           disabled={currentPage <= 1}
+          onClick={onPrev}
         >
           <ChevronLeft className="h-4 w-4" />
           Previous
@@ -39,6 +44,7 @@ export default function Pagination({
           size="sm"
           className="h-8 gap-1"
           disabled={currentPage >= totalPages}
+          onClick={onNext}
         >
           Next
           <ChevronRight className="h-4 w-4" />

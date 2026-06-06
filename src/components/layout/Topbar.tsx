@@ -58,6 +58,14 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
         .toUpperCase() ?? "")
     : "";
 
+  const getAvatarUrl = () => {
+    if (!user?.profile_image) return "";
+    if (user.profile_image.startsWith("http://") || user.profile_image.startsWith("https://")) {
+      return user.profile_image;
+    }
+    return `${process.env.NEXT_PUBLIC_BASE_URL}${user.profile_image}`;
+  };
+
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-amber-100/70 bg-white/85 px-6 py-2 shadow-sm backdrop-blur">
       <div className="flex min-w-0 items-center gap-3">
@@ -79,18 +87,13 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="relative rounded-full border border-amber-100 bg-white p-2 text-amber-700 shadow-sm">
-          <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-amber-500" />
-          <Bell className="h-4 w-4" />
-        </button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-3 rounded-full border border-amber-100 bg-white px-3 py-2 text-left shadow-sm">
               <Avatar className="h-8 w-8">
-                {mounted && (
+                {mounted && getAvatarUrl() && (
                   <AvatarImage
-                    src={`${process.env.NEXT_PUBLIC_BASE_URL}${user?.profile_image}`}
+                    src={getAvatarUrl()}
                     alt="Admin"
                   />
                 )}
@@ -116,14 +119,10 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <User className="h-4 w-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
               <Link href="/settings" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Settings
-              </Link>
+              </Link> 
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

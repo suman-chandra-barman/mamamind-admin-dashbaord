@@ -2,9 +2,12 @@
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-function Shimmer({ className }: { className?: string }) {
+function Shimmer({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
-    <div className={`animate-pulse rounded-md bg-zinc-100 ${className ?? ""}`} />
+    <div
+      className={`animate-pulse rounded-md bg-zinc-100 ${className ?? ""}`}
+      style={style}
+    />
   );
 }
 

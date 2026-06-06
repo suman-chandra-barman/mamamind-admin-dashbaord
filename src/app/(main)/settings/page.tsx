@@ -1,4 +1,4 @@
-import LegalDocumentsCard from "@/components/settings/LegalDocumentsCard";
+
 import PasswordCard from "@/components/settings/PasswordCard";
 import ProfileSettingsCard from "@/components/settings/ProfileSettingsCard";
 
@@ -13,7 +13,6 @@ export default function SettingsPage() {
       </div>
       <ProfileSettingsCard />
       <PasswordCard />
-      <LegalDocumentsCard />
     </div>
   );
 }

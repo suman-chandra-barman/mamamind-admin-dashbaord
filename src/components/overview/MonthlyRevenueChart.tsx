@@ -11,17 +11,30 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { MonthlyRevenuePoint } from "@/types/dashboard";
 
-const data = [
-  { name: "Jan", value: 4100 },
-  { name: "Feb", value: 4550 },
-  { name: "Mar", value: 4900 },
-  { name: "Apr", value: 5350 },
-  { name: "May", value: 5650 },
-  { name: "Jun", value: 6100 },
-];
+interface MonthlyRevenueChartProps {
+  data: MonthlyRevenuePoint[];
+}
 
-export default function MonthlyRevenueChart() {
+export default function MonthlyRevenueChart({ data }: MonthlyRevenueChartProps) {
+  const chartData = data.map((d) => ({
+    name: d.month,
+    value: parseFloat(d.revenue),
+  }));
+
+  const firstYear = data[0]?.year;
+  const lastYear = data[data.length - 1]?.year;
+  const firstMonth = data[0]?.month;
+  const lastMonth = data[data.length - 1]?.month;
+
+  const rangeLabel =
+    firstYear && lastYear
+      ? firstYear === lastYear
+        ? `${firstMonth} – ${lastMonth} ${firstYear}`
+        : `${firstMonth} ${firstYear} – ${lastMonth} ${lastYear}`
+      : "";
+
   return (
     <Card className="h-full">
       <CardHeader className="flex-row items-start justify-between gap-3">
@@ -30,13 +43,13 @@ export default function MonthlyRevenueChart() {
           <p className="text-sm text-zinc-500">Last 6 months performance</p>
         </div>
         <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-          Jan - Jun 2025
+          {rangeLabel}
         </span>
       </CardHeader>
       <CardContent className="pt-2">
         <ResponsiveContainer width="100%" height={250}>
           <LineChart
-            data={data}
+            data={chartData}
             margin={{ top: 5, right: 20, left: -10, bottom: 0 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f0ece6" />
@@ -48,6 +61,7 @@ export default function MonthlyRevenueChart() {
                 border: "1px solid #f0ece6",
                 borderRadius: "12px",
               }}
+              formatter={(val: number) => [`$${val.toFixed(2)}`, "Revenue"]}
             />
             <Line
               type="monotone"

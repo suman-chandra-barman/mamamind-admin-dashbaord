@@ -1,43 +1,47 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Provider } from "react-redux";
 
 import { makeStore, AppStore } from "@/redux/store";
-import { setCredentials } from "@/redux/features/auth/authSlice";
+import type { AuthUser } from "@/types/auth";
+
+/**
+ * Read auth tokens from localStorage synchronously so that makeStore
+ * receives a preloaded state before the very first render.
+ * This prevents RTK Query from firing API calls before the token is available,
+ * which would otherwise cause a 401 race condition on hard reload.
+ */
+function getPreloadedAuth() {
+  if (typeof window === "undefined") return undefined;
+
+  try {
+    const userRaw = localStorage.getItem("user");
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    if (userRaw && accessToken && refreshToken) {
+      const user: AuthUser = JSON.parse(userRaw);
+      return { user, token: accessToken, refreshToken };
+    }
+  } catch {
+    // Ignore malformed storage
+  }
+
+  return undefined;
+}
 
 export default function StoreProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // storeRef is initialised once — synchronously — with the token already set.
   const storeRef = useRef<AppStore | null>(null);
 
   if (!storeRef.current) {
-    storeRef.current = makeStore();
+    storeRef.current = makeStore(getPreloadedAuth());
   }
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !storeRef.current) return;
-
-    const userRaw = localStorage.getItem("user");
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    if (userRaw && accessToken && refreshToken) {
-      try {
-        const user = JSON.parse(userRaw);
-        storeRef.current.dispatch(
-          setCredentials({
-            user,
-            tokens: { access: accessToken, refresh: refreshToken },
-          }),
-        );
-      } catch {
-        // Ignore malformed storage
-      }
-    }
-  }, []);
 
   return <Provider store={storeRef.current}>{children}</Provider>;
 }

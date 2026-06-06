@@ -1,13 +1,21 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { baseApi } from "./api/baseApi";
 import authReducer from "@/redux/features/auth/authSlice";
+import type { AuthUser } from "@/types/auth";
 
-export const makeStore = () => {
+interface PreloadedAuthState {
+  user: AuthUser | null;
+  token: string | null;
+  refreshToken: string | null;
+}
+
+export const makeStore = (preloadedAuth?: PreloadedAuthState) => {
   return configureStore({
     reducer: {
       [baseApi.reducerPath]: baseApi.reducer,
       auth: authReducer,
     },
+    preloadedState: preloadedAuth ? { auth: preloadedAuth } : undefined,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat(baseApi.middleware),
   });

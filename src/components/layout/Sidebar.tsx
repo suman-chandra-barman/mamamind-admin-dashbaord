@@ -8,9 +8,6 @@ import {
   Users,
   Share2,
   TrendingUp,
-  Shield,
-  MessageSquare,
-  BarChart3,
   Settings,
   LogOut,
   X,
@@ -44,17 +41,6 @@ const navigation: NavSection[] = [
       { name: "Subscriptions", href: "/subscriptions", icon: Share2 },
       { name: "Revenue", href: "/revenue", icon: TrendingUp },
     ],
-  },
-  {
-    label: "MANAGE",
-    items: [
-      { name: "Plans", href: "/plans", icon: Shield },
-      { name: "Bot Responses", href: "/bot-responses", icon: MessageSquare },
-    ],
-  },
-  {
-    label: "INSIGHTS",
-    items: [{ name: "Usage & Analytics", href: "/analytics", icon: BarChart3 }],
   },
   {
     label: "SETTINGS",

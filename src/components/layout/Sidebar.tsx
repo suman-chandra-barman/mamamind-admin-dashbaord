@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   X,
+  HelpCircle,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -40,6 +41,8 @@ const navigation: NavSection[] = [
       { name: "Users", href: "/users", icon: Users },
       { name: "Subscriptions", href: "/subscriptions", icon: Share2 },
       { name: "Revenue", href: "/revenue", icon: TrendingUp },
+      { name: "FAQ", href: "/faq", icon: HelpCircle },
+
     ],
   },
   {
@@ -72,9 +75,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         style={
           active
             ? {
-                backgroundColor: "rgba(180, 117, 23, 0.25)",
-                border: "1px solid rgba(180, 117, 23, 0.35)",
-              }
+              backgroundColor: "rgba(180, 117, 23, 0.25)",
+              border: "1px solid rgba(180, 117, 23, 0.35)",
+            }
             : undefined
         }
       >

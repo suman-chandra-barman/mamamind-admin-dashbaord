@@ -20,6 +20,8 @@ export type FaqItem = {
   answer: string;
   category: Exclude<FaqCategoryKey, "all">;
   category_display: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type FaqResponse = {
@@ -30,6 +32,20 @@ export type FaqResponse = {
     count: number;
     categories: FaqCategory[];
     faqs: FaqItem[];
+  };
+};
+
+export type CreateFaqPayload = {
+  question: string;
+  answer: string;
+  category: Exclude<FaqCategoryKey, "all">;
+};
+
+export type CreateFaqResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    faq: FaqItem;
   };
 };
 
@@ -52,7 +68,16 @@ export const faqApi = baseApi.injectEndpoints({
       },
       providesTags: ["Faq"],
     }),
+    createFaq: builder.mutation<CreateFaqResponse, CreateFaqPayload>({
+      query: (body) => ({
+        url: "/faqs/",
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Faq"],
+    }),
   }),
 });
 
-export const { useGetFaqsQuery } = faqApi;
+export const { useGetFaqsQuery, useCreateFaqMutation } = faqApi;
+

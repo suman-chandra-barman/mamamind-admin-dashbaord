@@ -12,6 +12,7 @@ import {
   LogOut,
   X,
   HelpCircle,
+  MessageSquare,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -42,7 +43,7 @@ const navigation: NavSection[] = [
       { name: "Subscriptions", href: "/subscriptions", icon: Share2 },
       { name: "Revenue", href: "/revenue", icon: TrendingUp },
       { name: "FAQ", href: "/faq", icon: HelpCircle },
-
+      { name: "Messages", href: "/supports", icon: MessageSquare },
     ],
   },
   {

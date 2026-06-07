@@ -42,6 +42,7 @@ export default function Topbar({ onOpenSidebar }: TopbarProps) {
     "/subscriptions": { title: "Subscriptions", section: "Dashboard" },
     "/revenue": { title: "Revenue", section: "Dashboard" },
     "/faq": { title: "FAQ", section: "Dashboard" },
+    "/supports": { title: "Messages", section: "Dashboard" },
     "/settings": { title: "Settings", section: "Dashboard" },
   };
 

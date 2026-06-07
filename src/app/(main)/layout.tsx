@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
+import ProfileBootstrapper from "@/components/layout/ProfileBootstrapper";
 
 export default function AdminLayout({
   children,
@@ -13,6 +14,9 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,#fff8ee,#f6f7fb_35%,#eef1f7_100%)]">
+      {/* Fires useGetProfileQuery immediately — syncs profile_image into Redux
+          so Topbar shows the correct avatar on every page, not just /settings */}
+      <ProfileBootstrapper />
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="lg:pl-64">
         <div className="mx-auto flex min-h-screen w-full flex-col gap-6 px-4 pb-6 lg:px-6">

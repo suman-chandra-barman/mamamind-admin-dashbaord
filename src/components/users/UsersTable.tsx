@@ -44,10 +44,10 @@ interface Props {
 // ── Component ──────────────────────────────────────────────────────────────────
 export default function 
 UsersTable({ users, summary, onPageChange }: Props) {
-  const { page, total_pages, filtered_count, showing } = summary;
-  const start = (page - 1) * showing + 1;
-  const end = Math.min(page * showing, filtered_count);
-  const countLabel = `Showing ${start}–${end} of ${filtered_count.toLocaleString()} users`;
+  const { page, total_pages, filtered_count, showing, page_size } = summary;
+  const start = (page - 1) * page_size + 1;
+  const end = start - 1 + showing;
+  const countLabel = `Showing ${start}–${end} of ${filtered_count.toLocaleString()} results`;
 
   return (
     <Card>

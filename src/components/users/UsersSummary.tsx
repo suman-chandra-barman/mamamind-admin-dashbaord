@@ -8,11 +8,11 @@ interface Props {
 }
 
 export default function UsersSummary({ summary }: Props) {
-  const { total_users, filtered_count, showing, page, total_pages } = summary;
+  const { total_users, filtered_count, showing, page, page_size, total_pages } = summary;
   const isFiltered = filtered_count !== total_users;
 
-  const start = (page - 1) * showing + 1;
-  const end = Math.min(page * showing, filtered_count);
+  const start = (page - 1) * page_size + 1;
+  const end = start - 1 + showing;
 
   return (
     <Card className="p-5">

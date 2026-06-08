@@ -53,11 +53,45 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
-      <div>
-        <h1 className="text-xl font-bold text-zinc-900">Users</h1>
-        <p className="mt-0.5 text-sm text-zinc-500">
-          Manage and monitor all registered users.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-zinc-900">Users</h1>
+          <p className="mt-0.5 text-sm text-zinc-500">
+            Manage and monitor all registered users.
+          </p>
+        </div>
+
+        {usersData && (() => {
+          const { total_users, filtered_count, showing, page, page_size, total_pages } = usersData.summary;
+          const start = (page - 1) * page_size + 1;
+          const end = start - 1 + showing;
+          return (
+            <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+              <span className="font-semibold text-zinc-800">
+                {total_users.toLocaleString()} total users
+              </span>
+              <span className="text-zinc-300">|</span>
+              <span>
+                Showing{" "}
+                <span className="font-medium text-zinc-700">{start}–{end}</span>{" "}
+                of{" "}
+                <span className="font-medium text-zinc-700">{filtered_count.toLocaleString()}</span>{" "}
+                results
+              </span>
+              {total_pages > 1 && (
+                <>
+                  <span className="text-zinc-300">|</span>
+                  <span>
+                    Page{" "}
+                    <span className="font-medium text-zinc-700">{page}</span>{" "}
+                    of{" "}
+                    <span className="font-medium text-zinc-700">{total_pages}</span>
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })()}
       </div>
 
       {/* ── Error state ── */}

@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, X, ChevronDown, ChevronUp, Mail, Clock, Tag } from "lucide-react";
+import { Search, X, ChevronDown, ChevronUp, Mail, Clock, Tag, Trash2, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import { useDeleteAdminMessageMutation } from "@/redux/features/contact/contactApi";
 import type {
   ContactMessage,
   EnquiryTypeOption,
@@ -60,30 +63,36 @@ function getAvatarColor(id: number) {
 }
 
 // ── Single message card ─────────────────────────────────────────────────────────
-function MessageCard({ msg }: { msg: ContactMessage }) {
+interface MessageCardProps {
+  msg: ContactMessage;
+  onDelete: (msg: ContactMessage) => void;
+}
+
+function MessageCard({ msg, onDelete }: MessageCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <Card className="overflow-hidden border border-zinc-200/80 shadow-sm transition-all duration-200 hover:shadow-md">
       <CardContent className="p-0">
-        <button
-          className="flex w-full items-start gap-4 p-5 text-left cursor-pointer group"
-          onClick={() => setExpanded((v) => !v)}
-          aria-expanded={expanded}
-        >
-          {/* Avatar */}
-          <div
-            className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${getAvatarColor(msg.id)}`}
+        <div className="flex w-full items-start gap-4 p-5 text-left">
+          {/* Main Info Clickable Region */}
+          <button
+            className="flex flex-1 items-start gap-4 text-left cursor-pointer group/btn min-w-0"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
           >
-            {getInitials(msg.name)}
-          </div>
+            {/* Avatar */}
+            <div
+              className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold ${getAvatarColor(msg.id)}`}
+            >
+              {getInitials(msg.name)}
+            </div>
 
-          {/* Content */}
-          <div className="min-w-0 flex-1">
-            {/* Row 1: name, status badge */}
-            <div className="flex flex-wrap items-center justify-between gap-2">
+            {/* Content */}
+            <div className="min-w-0 flex-1">
+              {/* Row 1: name */}
               <div className="flex items-center gap-2 min-w-0">
-                <p className="truncate text-sm font-semibold text-zinc-900 group-hover:text-amber-700 transition-colors">
+                <p className="truncate text-sm font-semibold text-zinc-900 group-hover/btn:text-amber-700 transition-colors">
                   {msg.name}
                 </p>
                 <span className="hidden sm:flex items-center gap-1 text-xs text-zinc-400">
@@ -91,40 +100,59 @@ function MessageCard({ msg }: { msg: ContactMessage }) {
                   {msg.email}
                 </span>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[msg.status] ?? "bg-zinc-100 text-zinc-600"}`}
-                >
-                  {msg.status_display}
+
+              {/* Row 2: subject + meta */}
+              <p className="mt-1 text-sm font-medium text-zinc-700 truncate">
+                {msg.subject}
+              </p>
+              <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
+                <span className="flex items-center gap-1">
+                  <Tag className="h-3 w-3" />
+                  <span
+                    className={`rounded px-1.5 py-0.5 font-medium ${ENQUIRY_STYLES[msg.enquiry_type] ?? "bg-zinc-100 text-zinc-600"}`}
+                  >
+                    {msg.enquiry_type_display}
+                  </span>
                 </span>
-                {expanded ? (
-                  <ChevronUp className="h-4 w-4 text-amber-600" />
-                ) : (
-                  <ChevronDown className="h-4 w-4 text-zinc-400" />
-                )}
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  {formatDate(msg.created_at)}
+                </span>
               </div>
             </div>
+          </button>
 
-            {/* Row 2: subject + meta */}
-            <p className="mt-1 text-sm font-medium text-zinc-700 truncate">
-              {msg.subject}
-            </p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-zinc-400">
-              <span className="flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                <span
-                  className={`rounded px-1.5 py-0.5 font-medium ${ENQUIRY_STYLES[msg.enquiry_type] ?? "bg-zinc-100 text-zinc-600"}`}
-                >
-                  {msg.enquiry_type_display}
-                </span>
-              </span>
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {formatDate(msg.created_at)}
-              </span>
-            </div>
+          {/* Actions */}
+          <div className="flex flex-shrink-0 items-center gap-2 self-start mt-0.5">
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${STATUS_STYLES[msg.status] ?? "bg-zinc-100 text-zinc-600"}`}
+            >
+              {msg.status_display}
+            </span>
+
+            {/* Delete button */}
+            <button
+              onClick={() => onDelete(msg)}
+              className="rounded-full p-1.5 text-zinc-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200 cursor-pointer"
+              title="Delete Message"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+
+            {/* Chevron toggler */}
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="rounded-full p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-all duration-200 cursor-pointer"
+              aria-label={expanded ? "Collapse message" : "Expand message"}
+            >
+              {expanded ? (
+                <ChevronUp className="h-4 w-4 text-amber-600" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-zinc-400" />
+              )}
+            </button>
           </div>
-        </button>
+        </div>
 
         {/* Expanded body */}
         <div
@@ -179,6 +207,9 @@ export default function MessagesList({
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [msgToDelete, setMsgToDelete] = useState<ContactMessage | null>(null);
+
+  const [deleteMessage, { isLoading: isDeleting }] = useDeleteAdminMessageMutation();
 
   // Client-side filter (the API may not support granular params on every env)
   const filtered = useMemo(() => {
@@ -195,6 +226,37 @@ export default function MessagesList({
       return matchSearch && matchStatus && matchType;
     });
   }, [messages, search, filterStatus, filterType]);
+
+  const handleDelete = async () => {
+    if (!msgToDelete) return;
+    const toastId = toast.loading("Deleting message...");
+    try {
+      const response = await deleteMessage(msgToDelete.id).unwrap();
+      if (response.success) {
+        toast.update(toastId, {
+          render: response.message || "Message deleted successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        setMsgToDelete(null);
+      } else {
+        toast.update(toastId, {
+          render: "Failed to delete message.",
+          type: "error",
+          isLoading: false,
+          autoClose: 4000,
+        });
+      }
+    } catch (err: any) {
+      toast.update(toastId, {
+        render: err?.data?.message || "An error occurred.",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    }
+  };
 
   const hasFilters = search || filterStatus !== "all" || filterType !== "all";
 
@@ -290,8 +352,95 @@ export default function MessagesList({
       ) : (
         <div className="space-y-3">
           {filtered.map((msg) => (
-            <MessageCard key={msg.id} msg={msg} />
+            <MessageCard key={msg.id} msg={msg} onDelete={setMsgToDelete} />
           ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {msgToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => !isDeleting && setMsgToDelete(null)}
+          />
+
+          {/* Dialog */}
+          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
+              <div>
+                <h2 className="text-base font-semibold text-zinc-900">
+                  Delete Message
+                </h2>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  This action cannot be undone.
+                </p>
+              </div>
+              <button
+                onClick={() => !isDeleting && setMsgToDelete(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors cursor-pointer"
+                disabled={isDeleting}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-3">
+              <p className="text-sm text-zinc-600">
+                Are you sure you want to delete this contact message?
+              </p>
+              <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold text-zinc-900 truncate">
+                    From: {msgToDelete.name}
+                  </p>
+                  <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">
+                    {msgToDelete.enquiry_type_display}
+                  </p>
+                </div>
+                <p className="mt-1 text-sm font-semibold text-zinc-900 truncate">
+                  {msgToDelete.subject}
+                </p>
+                <p className="mt-2 text-xs text-zinc-500 line-clamp-3 whitespace-pre-wrap">
+                  {msgToDelete.message}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 border-t border-zinc-100 px-6 py-4 bg-zinc-50/50">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setMsgToDelete(null)}
+                disabled={isDeleting}
+                className="border-zinc-200 text-zinc-600 hover:bg-zinc-50 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-rose-600 hover:bg-rose-700 text-white min-w-[100px] cursor-pointer gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

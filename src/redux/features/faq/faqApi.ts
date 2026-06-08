@@ -76,8 +76,15 @@ export const faqApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Faq"],
     }),
+    deleteFaq: builder.mutation<{ success: boolean; message: string; data: Record<string, never> }, number>({
+      query: (id) => ({
+        url: `/faqs/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Faq"],
+    }),
   }),
 });
 
-export const { useGetFaqsQuery, useCreateFaqMutation } = faqApi;
+export const { useGetFaqsQuery, useCreateFaqMutation, useDeleteFaqMutation } = faqApi;
 

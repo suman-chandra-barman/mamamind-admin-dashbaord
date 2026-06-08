@@ -12,7 +12,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
+  TableRow,  
 } from "@/components/ui/table";
 import type { AdminUser, UsersSummaryData } from "@/types/users";
 

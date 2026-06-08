@@ -109,11 +109,19 @@ export const contactApi = baseApi.injectEndpoints({
         body: payload,
       }),
     }),
+    deleteAdminMessage: builder.mutation<{ success: boolean; message: string; data: Record<string, never> }, number>({
+      query: (id) => ({
+        url: `/contact/admin/messages/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
 export const {
   useGetAdminMessagesQuery,
   useSendContactMessageMutation,
+  useDeleteAdminMessageMutation,
 } = contactApi;
 

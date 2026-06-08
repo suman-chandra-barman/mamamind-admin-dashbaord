@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, MessageCircleQuestion } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageCircleQuestion, Trash2, Loader2, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import type { FaqItem, FaqCategoryKey } from "@/redux/features/faq/faqApi";
+import { Button } from "@/components/ui/button";
+import { toast } from "react-toastify";
+import { useDeleteFaqMutation, type FaqItem, type FaqCategoryKey } from "@/redux/features/faq/faqApi";
 
 // ── Category badge styles ───────────────────────────────────────────────────────
 const CATEGORY_STYLES: Record<string, string> = {
@@ -26,11 +28,45 @@ interface Props {
 // ── Component ───────────────────────────────────────────────────────────────────
 export default function FaqList({ faqs, activeCategory }: Props) {
   const [openId, setOpenId] = useState<number | null>(null);
+  const [faqToDelete, setFaqToDelete] = useState<FaqItem | null>(null);
+
+  const [deleteFaq, { isLoading: isDeleting }] = useDeleteFaqMutation();
 
   const filtered =
     activeCategory === "all"
       ? faqs
       : faqs.filter((f) => f.category === activeCategory);
+
+  const handleDelete = async () => {
+    if (!faqToDelete) return;
+    const toastId = toast.loading("Deleting FAQ...");
+    try {
+      const response = await deleteFaq(faqToDelete.id).unwrap();
+      if (response.success) {
+        toast.update(toastId, {
+          render: response.message || "FAQ deleted successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+        setFaqToDelete(null);
+      } else {
+        toast.update(toastId, {
+          render: "Failed to delete FAQ.",
+          type: "error",
+          isLoading: false,
+          autoClose: 4000,
+        });
+      }
+    } catch (err: any) {
+      toast.update(toastId, {
+        render: err?.data?.message || "An error occurred.",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000,
+      });
+    }
+  };
 
   if (filtered.length === 0) {
     return (
@@ -56,35 +92,52 @@ export default function FaqList({ faqs, activeCategory }: Props) {
             className="overflow-hidden border border-zinc-200/80 shadow-sm transition-all duration-200 hover:shadow-md"
           >
             <CardContent className="p-0">
-              <button
-                className="flex w-full items-start justify-between gap-4 p-5 text-left cursor-pointer"
-                onClick={() => setOpenId(isOpen ? null : faq.id)}
-                aria-expanded={isOpen}
-              >
+              <div className="flex w-full items-start justify-between gap-4 p-5 text-left">
                 {/* Number + Question */}
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700">
+                <button
+                  className="flex flex-1 items-start gap-3 text-left cursor-pointer group"
+                  onClick={() => setOpenId(isOpen ? null : faq.id)}
+                  aria-expanded={isOpen}
+                >
+                  <span className="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700 transition-colors group-hover:bg-amber-200">
                     {index + 1}
                   </span>
-                  <p className="text-sm font-semibold text-zinc-900 group-hover:text-amber-700 leading-snug">
+                  <p className="text-sm font-semibold text-zinc-900 group-hover:text-amber-700 leading-snug transition-colors">
                     {faq.question}
                   </p>
-                </div>
+                </button>
 
-                {/* Badge + Chevron */}
-                <div className="flex flex-shrink-0 items-center gap-2">
+                {/* Badge + Actions */}
+                <div className="flex flex-shrink-0 items-center gap-2 self-start mt-0.5">
                   <span
                     className={`hidden sm:inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${getCategoryStyle(faq.category)}`}
                   >
                     {faq.category_display}
                   </span>
-                  {isOpen ? (
-                    <ChevronUp className="h-4 w-4 text-amber-600" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-zinc-400" />
-                  )}
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => setFaqToDelete(faq)}
+                    className="rounded-full p-1.5 text-zinc-400 hover:bg-rose-50 hover:text-rose-600 transition-all duration-200 cursor-pointer"
+                    title="Delete FAQ"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+
+                  {/* Toggle Button */}
+                  <button
+                    onClick={() => setOpenId(isOpen ? null : faq.id)}
+                    className="rounded-full p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-all duration-200 cursor-pointer"
+                    aria-label={isOpen ? "Collapse FAQ" : "Expand FAQ"}
+                  >
+                    {isOpen ? (
+                      <ChevronUp className="h-4 w-4 text-amber-600" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-zinc-400" />
+                    )}
+                  </button>
                 </div>
-              </button>
+              </div>
 
               {/* Answer accordion */}
               <div
@@ -100,6 +153,88 @@ export default function FaqList({ faqs, activeCategory }: Props) {
           </Card>
         );
       })}
+
+      {/* Delete Confirmation Modal */}
+      {faqToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => !isDeleting && setFaqToDelete(null)}
+          />
+
+          {/* Dialog */}
+          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-100 px-6 py-4">
+              <div>
+                <h2 className="text-base font-semibold text-zinc-900">
+                  Delete FAQ
+                </h2>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  This action cannot be undone.
+                </p>
+              </div>
+              <button
+                onClick={() => !isDeleting && setFaqToDelete(null)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 transition-colors cursor-pointer"
+                disabled={isDeleting}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-3">
+              <p className="text-sm text-zinc-600">
+                Are you sure you want to delete this FAQ?
+              </p>
+              <div className="rounded-xl border border-zinc-100 bg-zinc-50 p-4">
+                <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">
+                  {faqToDelete.category_display}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-zinc-900 leading-snug">
+                  {faqToDelete.question}
+                </p>
+                <p className="mt-2 text-xs text-zinc-500 line-clamp-3">
+                  {faqToDelete.answer}
+                </p>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 border-t border-zinc-100 px-6 py-4 bg-zinc-50/50">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setFaqToDelete(null)}
+                disabled={isDeleting}
+                className="border-zinc-200 text-zinc-600 hover:bg-zinc-50 cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="bg-rose-600 hover:bg-rose-700 text-white min-w-[100px] cursor-pointer gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

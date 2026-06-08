@@ -10,15 +10,11 @@ import { selectCurrentToken } from "@/redux/features/auth/authSlice";
 import OverviewStats from "@/components/overview/OverviewStats";
 import MonthlyRevenueChart from "@/components/overview/MonthlyRevenueChart";
 import PlanDistributionChart from "@/components/overview/PlanDistributionChart";
-import RecentActivityList from "@/components/overview/RecentActivityList";
-import RecentSignupsTable from "@/components/overview/RecentSignupsTable";
 
 import {
   OverviewStatsSkeleton,
   MonthlyRevenueChartSkeleton,
   PlanDistributionChartSkeleton,
-  RecentSignupsTableSkeleton,
-  RecentActivityListSkeleton,
 } from "@/components/overview/DashboardSkeletons";
 
 // ── Period options ─────────────────────────────────────────────────────────────
@@ -116,23 +112,6 @@ export default function DashboardPage() {
             <>
               <MonthlyRevenueChart data={overview.monthly_revenue_chart} />
               <PlanDistributionChart data={overview.subscribers_by_plan} />
-            </>
-          )
-        )}
-      </div>
-
-      {/* ── Bottom row ── */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {loading ? (
-          <>
-            <RecentSignupsTableSkeleton />
-            <RecentActivityListSkeleton />
-          </>
-        ) : (
-          overview && (
-            <>
-              <RecentSignupsTable />
-              <RecentActivityList />
             </>
           )
         )}

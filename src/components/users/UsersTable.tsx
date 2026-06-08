@@ -60,7 +60,6 @@ UsersTable({ users, summary, onPageChange }: Props) {
               <TableHead>Plan</TableHead>
               <TableHead>Family</TableHead>
               <TableHead>Join Date</TableHead>
-              <TableHead>Last Active</TableHead>
               <TableHead>Verified</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -70,7 +69,7 @@ UsersTable({ users, summary, onPageChange }: Props) {
             {users.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={7}
                   className="py-16 text-center text-sm text-zinc-500"
                 >
                   No users match your filters.
@@ -155,10 +154,6 @@ UsersTable({ users, summary, onPageChange }: Props) {
                     {user.join_date_display}
                   </TableCell>
 
-                  {/* Last Active */}
-                  <TableCell className="text-sm text-zinc-700">
-                    {user.last_active_display}
-                  </TableCell>
 
                   {/* Email Verified */}
                   <TableCell>
